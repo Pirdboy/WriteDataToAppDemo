@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>剪切板测试</title>
+</head>
+<body>
+    <button onclick="a_click()">剪切板方案1</button>
+    <button onclick="b_click()">剪切板方案2</button>
+    <button onclick="c_click()">剪切板方案3</button>
+    <button onclick="abc_click()">多方案for循环</button>
+    <script>
+        /*
+        function o(e, t, n) {
+			e = i(e);
+			if ("function" != typeof doc.execCommand) return !1;
+			var r = doc.createElement("div");
+            r.innerHTML = e;
+            
+            // 这里是对所有方案都进行copy
+			for (var a = [], o = 0; o < r.children.length; o++) a[o] = r.children[o];
+			for (var l, s, c = !1, d = t ? t + ((new Date).getTime() + 1e3 * (n || 1)) + "-" : null, o = 0; o < a.length; o++) try {
+				if (l = a[o], doc.body.appendChild(l), "SELECT" === l.nodeName) l.focus();
+				else if ("INPUT" === l.nodeName || "TEXTAREA" === l.nodeName) {
+					d && (l.value = encode2(decode2(l.value) + d));
+					var f = l.hasAttribute("readonly");
+					f || l.setAttribute("readonly", ""), l.select(), l.setSelectionRange(0, l.value.length), f || l.removeAttribute("readonly")
+				} else {
+					l.hasAttribute("contenteditable") && l.focus(), d && l.setAttribute("class", d), s = win.getSelection();
+					var u = doc.createRange();
+					u.selectNode(l), s.removeAllRanges(), s.addRange(u)
+				}
+				c = doc.execCommand("copy"), doc.body.removeChild(l)
+			} catch (e) {
+				doc.body.removeChild(l), c = !1
+			}
+			return s && s.removeAllRanges(), c
+		}
+        */
+
+        /*
+        <form>
+            <input type="text" name="fname" value="input_123456" >
+            <textarea>textarea_123456</textarea>
+        </form>
+        <textarea>textarea_outer_7654321</textarea>
+        <select>
+            <option>selectoption_123456</option>
+        </select>
+        <p contenteditable="true">p_contenteditable_123456</p>
+        */
+       // if 1: select , l.focus
+            // if 2: input或者textarea, 则如下
+            // else : 让元素(如div的contenteditable=true)试试,
+            // l.hasAttribute("contenteditable") && l.focus(), d && l.setAttribute("class", d), s = win.getSelection();
+			//		var u = doc.createRange();
+			//		u.selectNode(l), s.removeAllRanges(), s.addRange(u)
+
+            // 注意要点: 将l加入到child, 复制完之后remove
+            // input和textarea要放到form(待测试), 且不能为display:none;
+
+            // 目前测试 textarea这个在ios 11.0可以, 在安卓不行,iOS 9.0不行
+        var test_html='<form><input type="text" name="fname" value="input_123456" ><textarea>textarea_123456</textarea></form><textarea>textarea_outer_7654321</textarea><select><option>selectoption_123456</option></select><p contenteditable="true">p_contenteditable_123456</p>'
+        var doc = document
+        var win = window
+        function abc_click()
+        {
+            var r = doc.createElement("div")
+            r.innerHTML = test_html
+            console.log("div children:" + r.childElementCount + "," + r.childNodes + ","+r.children)
+            for(var a=[], i=0; i<r.children.length; i++)
+                a[i] = r.children[i]
+            for(var j, k, l, c, v=0; v < a.length; v++) try {
+                if(l = a[v], doc.body.appendChild(l), "FORM"===l.nodeName)
+                {
+                    /* 目前可行的方案, 都不能避免信息在输入法显示的问题 */
+                    /*
+                     放在form内textarea,input的测试结果:
+                    - Android 7.1.1 虚拟机可行
+                    - Android 4.4.1 真机可行
+                    */
+                    
+                    console.log(l)
+                    // form textarea
+                    var t1 = l.querySelector('textarea')
+                    var f2 = t1.hasAttribute("readonly")
+                    f2 || t1.setAttribute("readonly", ""), t1.select(), t1.setSelectionRange(0, t1.value.length), f2 || t1.removeAttribute("readonly")
+                    
+                    // form input
+                    /*
+                    var t2 = l.querySelector('input')
+                    var f3 = t2.hasAttribute("readonly")
+                    f3 || t2.setAttribute("readonly", ""), t2.select(), t2.setSelectionRange(0, t2.value.length), f3 || t2.removeAttribute("readonly")
+                    */
+                }
+                else if("TEXTAREA" === l.nodeName)
+                {
+                    /* 
+                    放在外面的textarea,测试结果:
+                    - Android 7.1.1 虚拟机可行 
+                    - Android 4.4.1 真机可行
+                    */
+                    console.log(l)
+                    var f = l.hasAttribute("readonly")
+                    f || l.setAttribute("readonly", ""), l.select(), l.setSelectionRange(0, l.value.length), f || l.removeAttribute("readonly")
+                }
+                else if("SELECT" === l.nodeName)
+                {
+                    /* 
+                     select测试结果:
+                     - Android 7.1.1 虚拟机不行
+                     - Android 4.4.1 真机不行
+                    */
+                    console.log(l)
+                    l.focus()
+                }
+                else
+                {
+                    /* 
+                      contenteditable测试结果:
+                      - Android 7.1.1 虚拟机不行
+                     - Android 4.4.1 真机不行
+                    */
+                   
+                    console.log(l)
+                    l.hasAttribute("contenteditable") && l.focus(), d && l.setAttribute("class", d), s = win.getSelection();
+					var u = doc.createRange();
+					u.selectNode(l), s.removeAllRanges(), s.addRange(u)
+                }
+                c = doc.execCommand("copy"), doc.body.removeChild(l)
+            } catch(e) {
+                doc.body.removeChild(l)
+            }
+        }
+        function a_click()
+        {
+            /* textarea */
+            var e = document.createElement("textarea")
+            document.body.appendChild(e)
+            e.value = "123124424123"
+            var f = e.hasAttribute("readonly")
+            console.log(e.nodeName)
+            if(f)
+            {
+                e.setAttribute("readonly",""), e.select()
+                e.setSelectionRange(0, e.value.length)
+                e.removeAttribute("readonly")
+            }
+            else{
+                e.setSelectionRange(0, e.value.length)
+                console.log("no readonly")
+            }
+            var c = document.execCommand("copy")
+
+            document.body.removeChild(e)
+        }
+        function b_click() {
+            /* contenteditable */
+            var e = document.createElement("div")
+            document.body.appendChild(e)
+            console.log("contenteditable:"+e.hasAttribute("contenteditable"))
+            e.focus()
+            var s=window.getSelection();
+            var u=document.createRange();
+            u.selectNode(e)
+            s.removeAllRanges()
+            s.addRange(u)
+            var c = document.execCommand("copy")
+            document.body.removeChild(e)
+        }
+
+        function c_click() {
+            /* select */
+            var s_html = "<select><option>SelectCopyText</option></select>"
+            var d = document.createElement("div")
+            d.innerHTML = s_html;
+            var l = d.children[0]
+            console.log(d.innerHTML + ",l.nodeName:"+l.nodeName)
+            document.body.appendChild(l)
+            l.focus()
+
+            var c = document.execCommand("copy")
+            document.body.removeChild(l)
+        }
+        
+    </script>
+</body>
+</html>

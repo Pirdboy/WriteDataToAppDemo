@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+	</head>
+<body>
+<p>剪贴板测试</p>
+<p id="myText">aaaaaaaaaa</p>
+
+<button onclick="testFunction()" id="myBtn">剪切板按钮</button>
+
+<!-- Target -->
+<input id="foo" type="text" value="https://github.com/zenorocha/clipboard.js.git">
+
+<!-- Trigger -->
+<button class="btn" type="button" data-clipboard-target="#foo">
+    <img src="chrome.png" alt="Copy to clipboard">
+</button>
+
+<!-- Trigger -->
+<button class="btn" data-clipboard-text="Just because y">
+    Copy to clipboard   222
+</button>
+
+<a href="https://cn.bing.com" class="myhref">一个链接</a>
+<script src="clipboard.min.js" type="text/javascript"></script>
+<script src="jian.js"></script>
+<script type="text/javascript">
+	var s = ClipboardJS.isSupported();
+    console.log(s);
+	// var cp = new ClipboardJS('.btn');
+	new ClipboardJS('.btn', {
+	    text: function(trigger) {
+	    	window.open("https://cn.bing.com");
+	        return "99888888";
+    	}
+	});
+	new ClipboardJS('.myhref', {
+	    text: function(trigger) {
+	        return "1xxxxxx";
+    	}
+	});
+</script>
+</body>
+</html>
